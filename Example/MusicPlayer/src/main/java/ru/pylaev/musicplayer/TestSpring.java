@@ -1,4 +1,4 @@
-package ru.pylaev.springexample;
+package ru.pylaev.musicplayer;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

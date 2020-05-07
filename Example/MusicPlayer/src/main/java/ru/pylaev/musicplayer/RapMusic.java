@@ -1,4 +1,4 @@
-package ru.pylaev.springexample;
+package ru.pylaev.musicplayer;
 
 public class RapMusic implements Music {
 

@@ -11,18 +11,18 @@
     <context:property-placeholder location="classpath:musicPlayer.properties"/>
 
     <bean id="classicalMusicBean"
-          class="ru.pylaev.springexample.ClassicalMusic">
+          class="ru.pylaev.musicplayer.ClassicalMusic">
     </bean>
     <bean id="rockMusicBean"
-          class="ru.pylaev.springexample.RockMusic">
+          class="ru.pylaev.musicplayer.RockMusic">
 
     </bean>
     <bean id="rapMusicBean"
-          class="ru.pylaev.springexample.RapMusic">
+          class="ru.pylaev.musicplayer.RapMusic">
     </bean>
 
     <bean id="musicPlayer"
-          class="ru.pylaev.springexample.MusicPlayer">
+          class="ru.pylaev.musicplayer.MusicPlayer">
         <property name="playList">
             <list>
                 <ref bean="classicalMusicBean"/>

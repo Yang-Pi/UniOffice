@@ -1,4 +1,4 @@
-package ru.pylaev.springexample;
+package ru.pylaev.musicplayer;
 
 import java.util.ArrayList;
 import java.util.List;
