@@ -32,7 +32,7 @@ public class BotFeatures {
         keyboardFirstRow.add(new KeyboardButton("Зарегистрироваться"));
 
         KeyboardRow keyboardSecondRow = new KeyboardRow();
-        keyboardSecondRow.add(new KeyboardButton("Помощь"));
+        keyboardSecondRow.add(new KeyboardButton("О сервисе"));
 
         keyboard.add(keyboardFirstRow);
         keyboard.add(keyboardSecondRow);
@@ -59,11 +59,10 @@ public class BotFeatures {
 
         KeyboardRow keyboardSecondRow = new KeyboardRow();
         keyboardSecondRow.add(new KeyboardButton("Добавить группу"));
-        keyboardSecondRow.add(new KeyboardButton("Добавить студента"));
-        keyboardSecondRow.add(new KeyboardButton("Добавить преподавателя"));
+        keyboardSecondRow.add(new KeyboardButton("Добавить студента или преподавателя"));
 
         KeyboardRow keyboardThirdRow = new KeyboardRow();
-        keyboardThirdRow.add(new KeyboardButton("Помощь"));
+        keyboardThirdRow.add(new KeyboardButton("О сервисе"));
         keyboardThirdRow.add(new KeyboardButton("Выйти"));
 
         keyboard.add(keyboardFirstRow);

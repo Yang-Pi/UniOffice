@@ -301,7 +301,6 @@ public class Server {
 
     public static List<BotUtils.Mark> getStudentMarks(Integer studentId) {
         List<BotUtils.Mark> res = new ArrayList<>();
-        System.out.println("ID: " + studentId);
         try {
             String sUrl = _sMainUrl + "/student/" + studentId + "/marks";
             URL url = new URL(sUrl);
@@ -424,6 +423,74 @@ public class Server {
                 byte[] requestBody = ("{\"firstName\": \"" + firstName + "\", \"lastName\": \"" + lastName
                         + "\",\"fatherName\": \"" + fatherName + "\", \"studentGroup\": {\"id\": " + groupId
                         + "}, \"type\": \"" + type + "\"}").getBytes(StandardCharsets.UTF_8);
+
+                http.setFixedLengthStreamingMode(requestBody.length);
+                http.connect();
+
+                try(OutputStream os = http.getOutputStream()) {
+                    os.write(requestBody);
+                }
+
+                if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    res = true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                http.disconnect();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return res;
+        }
+    }
+
+    public static boolean checkGroupName(String groupname) {
+        boolean res = false;
+        try {
+            String sUrl = _sMainUrl + "/checkGroupName/" + groupname;
+            URL url = new URL(sUrl);
+            HttpURLConnection http = null;
+            try {
+                http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("GET");
+                http.setRequestProperty("Authorization", "Bearer "+ _serverToken);
+                http.setDoOutput(true);
+
+                http.connect();
+                if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    res = true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                http.disconnect();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return res;
+        }
+    }
+
+    public static boolean addNewGroup(String groupName) {
+        boolean res = false;
+        try {
+            String sUrl = _sMainUrl + "/addGroup";
+            URL url = new URL(sUrl);
+            HttpURLConnection http = null;
+            try {
+                http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("POST");
+                http.setRequestProperty("Authorization", "Bearer "+ _serverToken);
+                http.setDoOutput(true);
+                http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                byte[] requestBody = ("{\"name\": \"" + groupName + "\"}").getBytes(StandardCharsets.UTF_8);
 
                 http.setFixedLengthStreamingMode(requestBody.length);
                 http.connect();

@@ -39,7 +39,6 @@ public class Utils {
     public static JSONArray makeJSONArray(HttpURLConnection http) throws JSONException {
         JSONArray res = null;
         try {
-            System.out.println(http.getResponseCode());
             if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 InputStream is = http.getInputStream();
@@ -51,8 +50,6 @@ public class Utils {
                 }
                 byte[] data = byteArrayOutputStream.toByteArray();
                 String s = new String(data);
-
-                System.out.println(s);
 
                 JSONArray json = new JSONArray(s);
                 res = json;

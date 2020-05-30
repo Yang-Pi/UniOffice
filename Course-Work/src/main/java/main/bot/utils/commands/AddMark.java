@@ -86,7 +86,6 @@ public class AddMark {
 
         for (int i = 0; i < (max(subjects.size(), professors.size())); ++i) {
             if (i < subjects.size()) {
-                System.out.println(subjects.get(i).getId() + " " + subjects.get(i).getName());
                 rowButtons.add(new InlineKeyboardButton().setText(subjects.get(i).getName())
                         .setCallbackData("addmarksubject#" + subjects.get(i).getId() + "%" + subjects.get(i).getName()));
             }

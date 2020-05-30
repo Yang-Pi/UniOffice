@@ -3,10 +3,7 @@ package main.bot;
 import main.bot.features.BotFeatures;
 import main.bot.utils.BotUtils;
 import main.bot.utils.authentication.Authentication;
-import main.bot.utils.commands.AddMark;
-import main.bot.utils.commands.AddPerson;
-import main.bot.utils.commands.ListGroups;
-import main.bot.utils.commands.ListPeople;
+import main.bot.utils.commands.*;
 import main.bot.utils.server.Server;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -72,9 +69,6 @@ public class Bot extends TelegramLongPollingBot {
                 }
                 doCommand(update, response.getCommandName());
             }
-            else if (!_currentCommandName.equals(noCommandStatus)) {
-                continueCommand(update, _currentCommandName);
-            }
             else {
                 boolean isCommand = false;
                 String text = update.getMessage().getText();
@@ -101,23 +95,39 @@ public class Bot extends TelegramLongPollingBot {
                         break;
                     }
 
-                    case "Добавить студента" : {
+                    case "Добавить студента или преподавателя" : {
                         commandName = "addPerson";
+                        isCommand = true;
+                        break;
+                    }
+                    case "Добавить группу" : {
+                        commandName = "addGroup";
+                        isCommand = true;
+                        break;
+                    }
+                    case "О сервисе" : {
+                        commandName = "info";
                         isCommand = true;
                         break;
                     }
                 }
 
                 if (isCommand) {
-                    if (!_isSignin && (!commandName.equals("start") && !commandName.equals("signin") && !commandName.equals("signup") && !commandName.equals("help"))) {
+                    if (!_isSignin && (!commandName.equals("start") && !commandName.equals("signin") && !commandName.equals("signup") && !commandName.equals("info"))) {
                         messageService.send(update, "Пожалуйста, выполните вход");
                         messageService.send(BotFeatures.setHelloDownKeybord(update.getMessage().getChatId()));
                         _currentCommandName = noCommandStatus;
                         return;
                     }
                     else {
+                        if (!_currentCommandName.equals(noCommandStatus)) {
+                            _currentCommandName = noCommandStatus;
+                        }
                         doCommand(update, commandName);
                     }
+                }
+                else if (!_currentCommandName.equals(noCommandStatus)) {
+                    continueCommand(update, _currentCommandName);
                 }
                 else {
                     messageService.send(update, "Не болтаем лишнего!");
@@ -220,7 +230,7 @@ public class Bot extends TelegramLongPollingBot {
             case "addPerson" : {
                 if (!_userRole.equals("STUDENT")) {
                     _currentCommandName = commandName;
-                    String message = "Введите фамилию студента";
+                    String message = "Введите фамилию нового человека";
                     messageService.send(update, message);
                 }
                 else {
@@ -229,6 +239,32 @@ public class Bot extends TelegramLongPollingBot {
                 }
 
                 break;
+            }
+
+            case "addGroup" : {
+                if (!_userRole.equals("STUDENT")) {
+                    _currentCommandName = commandName;
+                    String message = "Введите название новой группы в формате xxxxxxx.yyyyy";
+                    InlineKeyboardMarkup markup = AddGroup.buildAddButton();
+                    try {
+                        Message responseMessage = execute(BotFeatures.setInlineKeyboard(update.getMessage().getChatId(), message, markup));
+                        AddGroup.setMessageId(responseMessage.getMessageId());
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    String message = "У вас нет прав доступа к этой функции";
+                    messageService.send(update, message);
+                }
+
+                break;
+            }
+
+            case "info" : {
+                String message = "Бот UniOffice - вспомогательнй сервис для деканата ИКНТ Политеха. " +
+                        "При возникновении технических неполадок обращаться к @pylaev";
+                messageService.send(update, message);
             }
         }
     }
@@ -290,7 +326,7 @@ public class Bot extends TelegramLongPollingBot {
                 else if (!AddPerson.wasSecondFieldSet()){
                     AddPerson.setFirstName(update.getMessage().getText());
                     AddPerson.setWasSecondFieldSet(true);
-                    String message = "Теперь отчество нового человека";
+                    String message = "Теперь отчество";
                     messageService.send(update, message);
                 }
                 else {
@@ -308,6 +344,22 @@ public class Bot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                 }
+                break;
+            }
+
+            case "addGroup" : {
+                String groupName = update.getMessage().getText();
+                if (!Server.checkGroupName(groupName)) {
+                    Integer pos = groupName.indexOf('/');
+                    if (pos != -1) {
+                        groupName = groupName.substring(0, pos) + "." + groupName.substring(pos + 1);
+                    }
+                    AddGroup.setName(groupName);
+                }
+                else {
+                    messageService.send(update, "Группа с таким именем уже существует");
+                }
+
                 break;
             }
         }
@@ -358,58 +410,34 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             case "addPerson" : {
-                String callbackData = update.getCallbackQuery().getData();
-                int pos1 = callbackData.indexOf("#");
-                int pos2 = callbackData.indexOf("%");
+                doAddPersonCallback(update);
+                break;
+            }
 
-                if (pos2 != -1 && callbackData.substring(0, pos1).equals("listgroups")) {
-                    AddPerson.setGroupId(callbackData.substring(pos1 + 1, pos2));
-                    if (!callbackData.substring(pos2 + 1).equals("professors")) {
-                        AddPerson.setGroupType("S");
+            case "addGroup" : {
+                String buttonInfo = update.getCallbackQuery().getData();
+                String message = "Группа " + AddGroup.getName() + " успешно добавлена";
+
+                if (buttonInfo.equals("addgroup_add")) {
+                    if (!AddGroup.getName().isEmpty()) {
+                        if (Server.addNewGroup(AddGroup.getName())) {
+                            message = "Группа " + AddGroup.getName() + " успешно добавлена";
+                        }
+                        else {
+                            message = "Что-то пошло не так";
+                        }
                     }
                     else {
-                        AddPerson.setGroupType("P");
-                    }
-                    String message = "Новый человек будет добавлен в группу " + callbackData.substring(pos2 + 1);
-                    messageService.send(update, message);
-                }
-                else if (callbackData.equals("addperson_add")) {
-                    if (AddPerson.getGroupType().isEmpty()) {
+                        messageService.send(update, "Имя группы не может быть пустым");
                         break;
                     }
-
-                    List<InlineKeyboardButton> lineButtons = new ArrayList<>();
-                    InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-                    String message;
-
-                    boolean wasAdded = Server.addNewPerson(AddPerson.getFirstName(), AddPerson.getLastName(), AddPerson.getFatherName(), AddPerson.getGroupId(), AddPerson.getGroupType());
-
-                    if (wasAdded) {
-
-                        lineButtons.add(new InlineKeyboardButton().setText("Выйти из учетной записи").setCallbackData("signout"));
-                        markup.setKeyboard(Collections.singletonList(lineButtons));
-                        messageService.send(BotFeatures.setMainDownKeybord(update.getCallbackQuery().getMessage().getChatId()));
-
-                        message = AddPerson.getLastName() + " "  + AddPerson.getFirstName() + " " + AddPerson.getFatherName() + " успешно добавлен в группу";
-                    }
-                    else {
-                        markup = null;
-                        message = "Что-то пошло не так";
-                    }
-                    messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddPerson.getMessageIdGroups()), message);
-                    messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddPerson.getMessageIdToolsBar()), "Работаем дальше!");
-                    _currentCommandName = noCommandStatus;
-
-                    AddPerson.setWasFirstFieldSet(false);
-                    AddPerson.setWasSecondFieldSet(false);
                 }
-                else if (callbackData.equals("addperson_cancel")) {
-                    messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddPerson.getMessageIdGroups()), "Добавление прервано");
-                    messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddPerson.getMessageIdToolsBar()), "Можете попробовать еще раз или воспользоваться другими функциями");
-                    AddPerson.setWasFirstFieldSet(false);
-                    AddPerson.setWasSecondFieldSet(false);
+                else {
+                    message = "Добавление группы прервано";
                 }
+                messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddGroup.getMessageId()), message);
 
+                _currentCommandName = noCommandStatus;
                 break;
             }
 
@@ -756,6 +784,60 @@ public class Bot extends TelegramLongPollingBot {
             messageService.editMarkup(_lastMessageInfo, null);
             messageService.editText(_lastMessageInfo, "Авторизация прервана");
             clearPasswordFields();
+        }
+    }
+
+    private void doAddPersonCallback(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
+        int pos1 = callbackData.indexOf("#");
+        int pos2 = callbackData.indexOf("%");
+
+        if (pos2 != -1 && callbackData.substring(0, pos1).equals("listgroups")) {
+            AddPerson.setGroupId(callbackData.substring(pos1 + 1, pos2));
+            if (!callbackData.substring(pos2 + 1).equals("professors")) {
+                AddPerson.setGroupType("S");
+            }
+            else {
+                AddPerson.setGroupType("P");
+            }
+            //String message = "Новый человек будет добавлен в группу " + callbackData.substring(pos2 + 1);
+            //messageService.send(update, message);
+        }
+        else if (callbackData.equals("addperson_add")) {
+            if (AddPerson.getGroupType().isEmpty()) {
+                return;
+            }
+
+            List<InlineKeyboardButton> lineButtons = new ArrayList<>();
+            InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+            String message;
+
+            boolean wasAdded = Server.addNewPerson(AddPerson.getFirstName(), AddPerson.getLastName(), AddPerson.getFatherName(), AddPerson.getGroupId(), AddPerson.getGroupType());
+
+            if (wasAdded) {
+
+                lineButtons.add(new InlineKeyboardButton().setText("Выйти из учетной записи").setCallbackData("signout"));
+                markup.setKeyboard(Collections.singletonList(lineButtons));
+                messageService.send(BotFeatures.setMainDownKeybord(update.getCallbackQuery().getMessage().getChatId()));
+
+                message = AddPerson.getLastName() + " "  + AddPerson.getFirstName() + " " + AddPerson.getFatherName() + " успешно добавлен в группу";
+            }
+            else {
+                markup = null;
+                message = "Что-то пошло не так";
+            }
+            messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddPerson.getMessageIdGroups()), message);
+            messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddPerson.getMessageIdToolsBar()), "Работаем дальше!");
+            _currentCommandName = noCommandStatus;
+
+            AddPerson.setWasFirstFieldSet(false);
+            AddPerson.setWasSecondFieldSet(false);
+        }
+        else if (callbackData.equals("addperson_cancel")) {
+            messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddPerson.getMessageIdGroups()), "Добавление прервано");
+            messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddPerson.getMessageIdToolsBar()), "Можете попробовать еще раз или воспользоваться другими функциями");
+            AddPerson.setWasFirstFieldSet(false);
+            AddPerson.setWasSecondFieldSet(false);
         }
     }
 

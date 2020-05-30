@@ -13,10 +13,15 @@ public class ListGroups {
         List<InlineKeyboardButton> rowButtons = new ArrayList<>();
 
         for (int i = 0; i < groupList.size(); ++i) {
-            rowButtons.add(new InlineKeyboardButton().setText(groupList.get(i).getName())
+            String groupName = groupList.get(i).getName();
+            Integer pos = groupName.indexOf('.');
+            if (pos != -1) {
+                groupName = groupName.substring(0, pos) + "/" + groupName.substring(pos + 1);
+            }
+            rowButtons.add(new InlineKeyboardButton().setText(groupName)
                     .setCallbackData("listgroups#" + groupList.get(i).getId() + "%" + groupList.get(i).getName()));
 
-            if (i % 4 == 0 && (i != 0) || i == groupList.size() - 1) {
+            if (i % 3 == 0 && (i != 0) || i == groupList.size() - 1) {
                 lineButtons.add(rowButtons);
                 rowButtons = new ArrayList<>();
             }
@@ -45,8 +50,6 @@ public class ListGroups {
         for (int i = 0; i < peopleList.size(); ++i) {
             String personInfo = peopleList.get(i).getLastName() + " " + peopleList.get(i).getFirstName() + " " + peopleList.get(i).getFatherName();
             rowButtons.add(new InlineKeyboardButton().setText(personInfo).setCallbackData("person#" + peopleList.get(i).getId()));
-
-            System.out.println(peopleList.get(i).getId());
 
             if (i % 3 == 0 && (i != 0) || i == peopleList.size() - 1) {
                 lineButtons.add(rowButtons);

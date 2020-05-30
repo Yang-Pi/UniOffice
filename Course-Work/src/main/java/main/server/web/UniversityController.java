@@ -103,6 +103,19 @@ public class UniversityController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/checkGroupName/{groupname}")
+    public ResponseEntity<StudentGroup> checkGroupName(@PathVariable("groupname") String groupname) {
+        StudentGroup studentGroup = studentGroupService.findByName(groupname);
+        if (studentGroup != null) {
+            System.out.println("!!!");
+            studentGroup.setPeople(null);
+            return new ResponseEntity<>(studentGroup, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/person/{id}")
     public ResponseEntity<Person> getStudentById(@PathVariable("id") Integer id) {
         Person person = personService.findById(id);
