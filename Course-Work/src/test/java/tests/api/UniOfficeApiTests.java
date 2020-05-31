@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UniOfficeApiTests {
     private static String _sMainUrl = "http://localhost:8080/api";
-    private static String _token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdSIsInJvbGVzIjpbIlNUVURFTlQiLCJQUk9GRVNTT1IiLCJNQU5BR0VSIl0sImlhdCI6MTU5MDkwNDU5OCwiZXhwIjoxNTkxMjA0NTk4fQ.g73r7EVn64_wRsujnTq6IU03ulWIHASKP0O6MunSj2g";
+    private static String _token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdSIsInJvbGVzIjpbIlNUVURFTlQiLCJQUk9GRVNTT1IiLCJNQU5BR0VSIl0sImlhdCI6MTU5MDkzMjgwNSwiZXhwIjoxNTkxMjMyODA1fQ.ir65tamlFIPx5QGZB7v6tcyGTkwVcnTn24SBjPj8GcM";
     ;
 
     @Test
@@ -74,14 +74,12 @@ public class UniOfficeApiTests {
                 byte[] requestBody = ("{\"userName\":\"" + username + "\",\"password\":\"" + password + "\"}").getBytes(StandardCharsets.UTF_8);
 
                 http.setFixedLengthStreamingMode(requestBody.length);
-                //http.setRequestProperty("Authorization", "Bearer "+ AuthController.getToken());
                 http.connect();
                 try (OutputStream os = http.getOutputStream()) {
                     os.write(requestBody);
                 }
 
                 assertEquals(HttpURLConnection.HTTP_OK, http.getResponseCode());
-                _token = (String) Utils.makeJSON(http).get("token");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -95,7 +93,7 @@ public class UniOfficeApiTests {
 
     @Test
     void testGetSubjects() {
-        String name = "Java";
+        String name = "Математические модели";
         assertAll(
                 () -> assertEquals(HttpStatus.OK, getRequest("/subjects")),
                 () -> assertEquals(HttpStatus.OK, getRequest("/checkSubjectName/" + name)),
@@ -105,7 +103,7 @@ public class UniOfficeApiTests {
 
     @Test
     void testGetGroups() {
-        AtomicInteger id = new AtomicInteger(207);
+        AtomicInteger id = new AtomicInteger(9);
         String name = "3530904.80001";
 
         assertAll(
@@ -121,23 +119,23 @@ public class UniOfficeApiTests {
     void testPeople() {
         //number is id
         assertAll(
-                () -> assertEquals(HttpStatus.OK, getRequest("/person/" + 210)),
+                () -> assertEquals(HttpStatus.OK, getRequest("/person/" + 10)),
                 () -> assertEquals(HttpStatus.NOT_FOUND, getRequest("/person/" + 1000)),
-                () -> assertEquals(HttpStatus.OK, getRequest("/student/" + 210 + "/marks")),
+                () -> assertEquals(HttpStatus.OK, getRequest("/student/" + 8 + "/marks")),
                 () -> assertEquals(HttpStatus.NOT_FOUND, getRequest("/student/" + 1000 + "/marks"))
         );
     }
 
     @Test
     void testAdd() {
-        String bodyAddMark = "{\"student\": {\"id\": " + 210 + "},\"subject\": {\"id\": " + 212
-                + "},\"professor\": {\"id\": " + 211 + "}, \"value\": " + 5 + "}";
+        String bodyAddMark = "{\"student\": {\"id\": " + 8 + "},\"subject\": {\"id\": " + 4
+                + "},\"professor\": {\"id\": " + 10 + "}, \"value\": " + 5 + "}";
 
         String bodyAddPerson = "{\"firstName\": \"" + "Тест" + "\", \"lastName\": \"" + "Тестов"
-                + "\",\"fatherName\": \"" + "Тестович" + "\", \"studentGroup\": {\"id\": " + 207
+                + "\",\"fatherName\": \"" + "Тестович" + "\", \"studentGroup\": {\"id\": " + 9
                 + "}, \"type\": \"" + "S" + "\"}";
 
-        String bodyAddSubject = "{\"name\": \"" + "UnitTest" + "\"}";
+        String bodyAddSubject = "{\"name\": \"" + "ЭВМ" + "\"}";
         String bodyAddGroup = "{\"name\": \"" + "Группа UnitTest" + "\"}";
 
         assertAll(

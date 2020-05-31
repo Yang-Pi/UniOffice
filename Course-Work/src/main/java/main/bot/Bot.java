@@ -635,7 +635,7 @@ public class Bot extends TelegramLongPollingBot {
                 Integer pos = update.getCallbackQuery().getData().indexOf("#") + 1;
 
                 List<BotUtils.Subject> subjects = Server.getSubjects();
-                List<BotUtils.Person> professors = Server.getPeople(206); //id of professors group
+                List<BotUtils.Person> professors = Server.getPeople(Server.getProfessorsGroupId());
                 InlineKeyboardMarkup markup = AddMark.buildSubjectsProfessorsInlineKeyboard(subjects, professors);
                 String message = "Выберете предмет и преподавателя";
                 try {

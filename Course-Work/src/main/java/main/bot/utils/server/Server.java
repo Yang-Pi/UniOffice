@@ -19,6 +19,11 @@ public class Server {
     private static String _serverToken;
     private static String _username;
     private static String _password;
+    private static int _professorsGroupId;
+
+    public static int getProfessorsGroupId() {
+        return _professorsGroupId;
+    }
 
     public static void setUsername(String username) {
         _username = username;
@@ -501,6 +506,11 @@ public class Server {
 
                 if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     res = true;
+                    if (groupName.equals("Преподаватели")) {
+                        JSONObject json = Utils.makeJSON(http);
+                        _professorsGroupId = Integer.parseInt(String.valueOf(json.get("id")));
+                    }
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
