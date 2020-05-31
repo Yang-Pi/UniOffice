@@ -1,6 +1,5 @@
-package main.bot.utils.server;
+package tests.api;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,32 +25,6 @@ public class Utils {
                 String s = new String(data);
 
                 JSONObject json = new JSONObject(s);
-                res = json;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-            return res;
-        }
-    }
-
-    public static JSONArray makeJSONArray(HttpURLConnection http) throws JSONException {
-        JSONArray res = null;
-        try {
-            if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                InputStream is = http.getInputStream();
-                //pack response to JSON
-                byte[] buffer = new byte[999];
-                int bytesRead;
-                while ((bytesRead = is.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, bytesRead);
-                }
-                byte[] data = byteArrayOutputStream.toByteArray();
-                String s = new String(data);
-
-                JSONArray json = new JSONArray(s);
                 res = json;
             }
         } catch (IOException e) {

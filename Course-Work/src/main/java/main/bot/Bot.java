@@ -105,6 +105,11 @@ public class Bot extends TelegramLongPollingBot {
                         isCommand = true;
                         break;
                     }
+                    case "Добавить предмет" : {
+                        commandName = "addSubject";
+                        isCommand = true;
+                        break;
+                    }
                     case "О сервисе" : {
                         commandName = "info";
                         isCommand = true;
@@ -261,6 +266,26 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
+            case "addSubject" : {
+                if (!_userRole.equals("STUDENT")) {
+                    _currentCommandName = commandName;
+                    String message = "Введите название предмета";
+                    InlineKeyboardMarkup markup = AddSubject.buildAddButton();
+                    try {
+                        Message responseMessage = execute(BotFeatures.setInlineKeyboard(update.getMessage().getChatId(), message, markup));
+                        AddSubject.setMessageId(responseMessage.getMessageId());
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    String message = "У вас нет прав доступа к этой функции";
+                    messageService.send(update, message);
+                }
+
+                break;
+            }
+
             case "info" : {
                 String message = "Бот UniOffice - вспомогательнй сервис для деканата ИКНТ Политеха. " +
                         "При возникновении технических неполадок обращаться к @pylaev";
@@ -357,7 +382,19 @@ public class Bot extends TelegramLongPollingBot {
                     AddGroup.setName(groupName);
                 }
                 else {
-                    messageService.send(update, "Группа с таким именем уже существует");
+                    messageService.send(update, "Такая группа уже существует");
+                }
+
+                break;
+            }
+
+            case "addSubject" : {
+                String subjectName = update.getMessage().getText();
+                if (!Server.checkSubjectName(subjectName)) {
+                    AddSubject.setName(subjectName);
+                }
+                else {
+                    messageService.send(update, "Предмет с таким названием уже существует");
                 }
 
                 break;
@@ -380,8 +417,6 @@ public class Bot extends TelegramLongPollingBot {
                 commandName = update.getCallbackQuery().getData();
             }
         }
-
-        System.out.println(commandName);
 
         switch (commandName) {
             case "signin" : {
@@ -428,7 +463,7 @@ public class Bot extends TelegramLongPollingBot {
                         }
                     }
                     else {
-                        messageService.send(update, "Имя группы не может быть пустым");
+                        messageService.send(update, "Название группы не может быть пустым");
                         break;
                     }
                 }
@@ -436,6 +471,33 @@ public class Bot extends TelegramLongPollingBot {
                     message = "Добавление группы прервано";
                 }
                 messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddGroup.getMessageId()), message);
+
+                _currentCommandName = noCommandStatus;
+                break;
+            }
+
+            case "addSubject" : {
+                String buttonInfo = update.getCallbackQuery().getData();
+                String message = "";
+
+                if (buttonInfo.equals("addsubject_add")) {
+                    if (!AddSubject.getName().isEmpty()) {
+                        if (Server.addNewSubject(AddSubject.getName())) {
+                            message = "Предмет " + AddSubject.getName() + " успешно добавлен";
+                        }
+                        else {
+                            message = "Что-то пошло не так";
+                        }
+                    }
+                    else {
+                        messageService.send(update, "Название предмета не может быть пустым");
+                        break;
+                    }
+                }
+                else {
+                    message = "Добавление предмета прервано";
+                }
+                messageService.editText(new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), AddSubject.getMessageId()), message);
 
                 _currentCommandName = noCommandStatus;
                 break;
@@ -488,7 +550,6 @@ public class Bot extends TelegramLongPollingBot {
                 Double sum = 0.0;
 
                 for (BotUtils.Person student : students) {
-                    System.out.println(ListPeople.computeAverageMark(student.getId()));
                     sum += Double.parseDouble(ListPeople.computeAverageMark(student.getId()));
                 }
 
@@ -559,7 +620,6 @@ public class Bot extends TelegramLongPollingBot {
             }
 
             case "personaddmark" : {
-                System.out.println(_userRole);
                 if (!_userRole.equals("PROFESSOR") && !_userRole.equals("MANAGER")) {
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setText("У вас нет возможности выставлять оценки!");
@@ -575,7 +635,7 @@ public class Bot extends TelegramLongPollingBot {
                 Integer pos = update.getCallbackQuery().getData().indexOf("#") + 1;
 
                 List<BotUtils.Subject> subjects = Server.getSubjects();
-                List<BotUtils.Person> professors = Server.getPeople(166); //id of professors group
+                List<BotUtils.Person> professors = Server.getPeople(206); //id of professors group
                 InlineKeyboardMarkup markup = AddMark.buildSubjectsProfessorsInlineKeyboard(subjects, professors);
                 String message = "Выберете предмет и преподавателя";
                 try {
@@ -608,8 +668,6 @@ public class Bot extends TelegramLongPollingBot {
                 Integer pos2 = update.getCallbackQuery().getData().indexOf('%') + 1;
                 AddMark.setProfessorId(Integer.parseInt(update.getCallbackQuery().getData().substring(pos1, pos2 - 1)));
                 AddMark.setProfessorName(update.getCallbackQuery().getData().substring(pos2));
-
-                System.out.println("SubjectId: " + AddMark.getSubjectId());
 
                 String message = AddMark.getSubjectName() + " " + AddMark.getProfessorName();
                 MessageInfo messageInfo = new MessageInfo(update.getCallbackQuery().getMessage().getChatId(), update.getCallbackQuery().getMessage().getMessageId());

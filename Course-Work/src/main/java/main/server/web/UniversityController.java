@@ -107,7 +107,6 @@ public class UniversityController {
     public ResponseEntity<StudentGroup> checkGroupName(@PathVariable("groupname") String groupname) {
         StudentGroup studentGroup = studentGroupService.findByName(groupname);
         if (studentGroup != null) {
-            System.out.println("!!!");
             studentGroup.setPeople(null);
             return new ResponseEntity<>(studentGroup, HttpStatus.OK);
         }
@@ -149,5 +148,16 @@ public class UniversityController {
     @GetMapping("/subjects")
     public ResponseEntity<List<Subject>> getSubjects() {
         return new ResponseEntity(subjectService.listSubjects(), HttpStatus.OK);
+    }
+
+    @GetMapping("/checkSubjectName/{subjectname}")
+    public ResponseEntity<Subject> checkSubjectName(@PathVariable("subjectname") String subjectname) {
+        Subject subject = subjectService.findByName(subjectname);
+        if (subject != null) {
+            return new ResponseEntity<>(subject, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

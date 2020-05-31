@@ -2,8 +2,8 @@ package main.bot.utils.server;
 
 import main.bot.utils.BotUtils;
 import org.apache.http.HttpException;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -491,6 +491,74 @@ public class Server {
                 http.setDoOutput(true);
                 http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
                 byte[] requestBody = ("{\"name\": \"" + groupName + "\"}").getBytes(StandardCharsets.UTF_8);
+
+                http.setFixedLengthStreamingMode(requestBody.length);
+                http.connect();
+
+                try(OutputStream os = http.getOutputStream()) {
+                    os.write(requestBody);
+                }
+
+                if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    res = true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                http.disconnect();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return res;
+        }
+    }
+
+    public static boolean checkSubjectName(String subjectName) {
+        boolean res = false;
+        try {
+            String sUrl = _sMainUrl + "/checkSubjectName/" + subjectName;
+            URL url = new URL(sUrl);
+            HttpURLConnection http = null;
+            try {
+                http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("GET");
+                http.setRequestProperty("Authorization", "Bearer "+ _serverToken);
+                http.setDoOutput(true);
+
+                http.connect();
+                if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    res = true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                http.disconnect();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return res;
+        }
+    }
+
+    public static boolean addNewSubject(String subjectName) {
+        boolean res = false;
+        try {
+            String sUrl = _sMainUrl + "/addSubject";
+            URL url = new URL(sUrl);
+            HttpURLConnection http = null;
+            try {
+                http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("POST");
+                http.setRequestProperty("Authorization", "Bearer "+ _serverToken);
+                http.setDoOutput(true);
+                http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                byte[] requestBody = ("{\"name\": \"" + subjectName + "\"}").getBytes(StandardCharsets.UTF_8);
 
                 http.setFixedLengthStreamingMode(requestBody.length);
                 http.connect();

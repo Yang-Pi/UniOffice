@@ -60,6 +60,7 @@ public class BotFeatures {
         KeyboardRow keyboardSecondRow = new KeyboardRow();
         keyboardSecondRow.add(new KeyboardButton("Добавить группу"));
         keyboardSecondRow.add(new KeyboardButton("Добавить студента или преподавателя"));
+        keyboardSecondRow.add(new KeyboardButton("Добавить предмет"));
 
         KeyboardRow keyboardThirdRow = new KeyboardRow();
         keyboardThirdRow.add(new KeyboardButton("О сервисе"));
