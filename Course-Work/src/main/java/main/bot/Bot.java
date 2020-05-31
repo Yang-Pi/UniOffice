@@ -67,6 +67,9 @@ public class Bot extends TelegramLongPollingBot {
                     _currentCommandName = noCommandStatus;
                     return;
                 }
+                if (!_currentCommandName.equals(noCommandStatus)) {
+                    _currentCommandName = noCommandStatus;
+                }
                 doCommand(update, response.getCommandName());
             }
             else {
@@ -96,17 +99,17 @@ public class Bot extends TelegramLongPollingBot {
                     }
 
                     case "Добавить студента или преподавателя" : {
-                        commandName = "addPerson";
+                        commandName = "addperson";
                         isCommand = true;
                         break;
                     }
                     case "Добавить группу" : {
-                        commandName = "addGroup";
+                        commandName = "addgroup";
                         isCommand = true;
                         break;
                     }
                     case "Добавить предмет" : {
-                        commandName = "addSubject";
+                        commandName = "addsubject";
                         isCommand = true;
                         break;
                     }
@@ -232,7 +235,7 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
-            case "addPerson" : {
+            case "addperson" : {
                 if (!_userRole.equals("STUDENT")) {
                     _currentCommandName = commandName;
                     String message = "Введите фамилию нового человека";
@@ -246,7 +249,7 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
-            case "addGroup" : {
+            case "addgroup" : {
                 if (!_userRole.equals("STUDENT")) {
                     _currentCommandName = commandName;
                     String message = "Введите название новой группы в формате xxxxxxx.yyyyy";
@@ -266,7 +269,7 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
-            case "addSubject" : {
+            case "addsubject" : {
                 if (!_userRole.equals("STUDENT")) {
                     _currentCommandName = commandName;
                     String message = "Введите название предмета";
@@ -341,7 +344,7 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
-            case "addPerson": {
+            case "addperson": {
                 if (!AddPerson.wasFirstFieldSet()) {
                     AddPerson.setLastName(update.getMessage().getText());
                     AddPerson.setWasFirstFieldSet(true);
@@ -372,7 +375,7 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
-            case "addGroup" : {
+            case "addgroup" : {
                 String groupName = update.getMessage().getText();
                 if (!Server.checkGroupName(groupName)) {
                     Integer pos = groupName.indexOf('/');
@@ -388,7 +391,7 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
-            case "addSubject" : {
+            case "addsubject" : {
                 String subjectName = update.getMessage().getText();
                 if (!Server.checkSubjectName(subjectName)) {
                     AddSubject.setName(subjectName);
@@ -444,16 +447,16 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
-            case "addPerson" : {
+            case "addperson" : {
                 doAddPersonCallback(update);
                 break;
             }
 
-            case "addGroup" : {
+            case "addgroup" : {
                 String buttonInfo = update.getCallbackQuery().getData();
                 String message = "Группа " + AddGroup.getName() + " успешно добавлена";
 
-                if (buttonInfo.equals("addgroup_add")) {
+                if (buttonInfo.equals("addGroup_add")) {
                     if (!AddGroup.getName().isEmpty()) {
                         if (Server.addNewGroup(AddGroup.getName())) {
                             message = "Группа " + AddGroup.getName() + " успешно добавлена";
@@ -476,7 +479,7 @@ public class Bot extends TelegramLongPollingBot {
                 break;
             }
 
-            case "addSubject" : {
+            case "addsubject" : {
                 String buttonInfo = update.getCallbackQuery().getData();
                 String message = "";
 
