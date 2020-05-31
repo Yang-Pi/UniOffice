@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UniOfficeApiTests {
     private static String _sMainUrl = "http://localhost:8080/api";
+    //token should be update before testing
     private static String _token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdSIsInJvbGVzIjpbIlNUVURFTlQiLCJQUk9GRVNTT1IiLCJNQU5BR0VSIl0sImlhdCI6MTU5MDkzMjgwNSwiZXhwIjoxNTkxMjMyODA1fQ.ir65tamlFIPx5QGZB7v6tcyGTkwVcnTn24SBjPj8GcM";
     ;
 
