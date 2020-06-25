@@ -1,4 +1,4 @@
-# Java-Spring
+# Uni-office
 
 Клиент-серверное приложение: *автоматизация работы деканата*.
 
@@ -12,3 +12,6 @@
 - Hibernate
 - Tomcat
 - REST API
+
+### Example
+Обучающий проект: Spring + XML
